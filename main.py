@@ -13,6 +13,7 @@ class BinaryNumber:
     def __repr__(self):
         return('decimal=%d binary=%s' % (self.decimal_val, ''.join(self.binary_vec)))
     
+    
 
 ## Implement multiplication functions here. Note that you will have to
 ## ensure that x, y are appropriately sized binary vectors for a
@@ -46,13 +47,37 @@ def pad(x,y):
 
 
 def subquadratic_multiply(x, y):
-    ### TODO
-    pass
-    ###
+    # pad with leading 0 if not even number of bits
+    x_vec, y_vec = pad(x.binary_vec,y.binary_vec)
+    n = max(len(x_vec), len(y_vec))
+
+    # base case
+    if x.decimal_val <= 1 and y.decimal_val <= 1:
+        return x.decimal_val * y.decimal_val
+
+    # split x, y into high and low halves
+    a, b = split_number(x_vec)
+    c, d = split_number(y_vec)
+
+    # recursive steps
+    ac = BinaryNumber(subquadratic_multiply(a, c))
+    bd = BinaryNumber(subquadratic_multiply(b, d))
+   
+    ad_bc = bit_shift(BinaryNumber(subquadratic_multiply(BinaryNumber(a.decimal_val + b.decimal_val), BinaryNumber(c.decimal_val + d.decimal_val))), n//2).decimal_val
+    ac = bit_shift(ac, n).decimal_val - bit_shift(ac, n//2).decimal_val
+    bd = bd.decimal_val - bit_shift(bd ,n//2).decimal_val
+
+    # combine results
+    return ad_bc + ac + bd
+   
+    
+
 
 ## Feel free to add your own tests here.
 def test_multiply():
     assert subquadratic_multiply(BinaryNumber(2), BinaryNumber(2)) == 2*2
+    assert subquadratic_multiply(BinaryNumber(3), BinaryNumber(16000)) == 3*16000
+    assert subquadratic_multiply(BinaryNumber(110000), BinaryNumber(40)) == 110000*40
 
 def time_multiply(x, y, f):
     start = time.time()
@@ -60,5 +85,9 @@ def time_multiply(x, y, f):
     return (time.time() - start)*1000
 
     
-    
+   
+test_multiply()
+
+
+
 
